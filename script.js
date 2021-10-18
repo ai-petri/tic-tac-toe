@@ -36,9 +36,37 @@ function getAll(x,y)
     return result;
 }
 
+function getScore(x,y)
+{
+    return Math.max(...getAll(x,y).filter(arr=>arr.indexOf("X")==-1).map(arr=>arr.filter(t=>t == "O").length));
+}
+
+function respond()
+{
+    var free = [];
+    for(let i=0; i<3; i++)
+    {
+        for(let j=0; j<3; j++)
+        {
+            if(get(i,j).innerHTML == " ")
+            {
+                free.push([i,j]);
+            }
+        }
+    }
+    var beneficial = free.filter(o => getAll(...o).filter(arr=>arr.indexOf("X")==-1).length > 0);
+    
+    beneficial.sort((a,b)=>getScore(...b) - getScore(...a));
+    if(beneficial.length > 0)
+    {
+        get(...beneficial[0]).innerHTML = "O";
+    }
+}
+
 for(let td of document.querySelectorAll("td"))
 {
     td.addEventListener("click", e=>{
         e.target.innerHTML = "X";
+        respond();
     })
 }
