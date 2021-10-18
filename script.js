@@ -5,12 +5,12 @@ function get(x,y)
 
 function getRow(n)
 {
-    return [get(0,n).innerHTML, get(1,n).innerHTML, get(2,n).innerHTML];
+    return [get(0,n), get(1,n), get(2,n)];
 }
 
 function getColumn(n)
 {
-    return [get(n,0).innerHTML, get(n,1).innerHTML, get(n,2).innerHTML];
+    return [get(n,0), get(n,1), get(n,2)];
 }
 
 function isDiagonal(x,y)
@@ -21,17 +21,17 @@ function isDiagonal(x,y)
 function getDiagonals()
 {
     return [
-        [get(0,0).innerHTML, get(1,1).innerHTML, get(2,2).innerHTML],
-        [get(2,0).innerHTML, get(1,1).innerHTML, get(0,2).innerHTML]
+        [get(0,0), get(1,1), get(2,2)],
+        [get(2,0), get(1,1), get(0,2)]
     ]
 }
 
 function getAll(x,y)
 {
-    var result = [getColumn(x), getRow(y)];
+    var result = [getColumn(x).map(el=>el.innerHTML), getRow(y).map(el=>el.innerHTML)];
     if(isDiagonal(x,y))
     {
-        result.push(...getDiagonals());
+        result.push(...getDiagonals().map(a=>a.map(el=>el.innerHTML)));
     }
     return result;
 }
@@ -61,12 +61,65 @@ function respond()
     {
         get(...beneficial[0]).innerHTML = "O";
     }
+    else
+    {
+        stop();
+    }
+}
+
+function find(char)
+{
+    for(let i=0; i<3; i++)
+    {
+        let row = getRow(i);
+        if(row.filter(el=>el.innerHTML==char).length == 3)
+        {
+            return row;
+        }
+        let column = getColumn(i);
+        if(column.filter(el=>el.innerHTML==char).length == 3)
+        {
+            return column;
+        }
+    }
+    for(let diagonal of getDiagonals())
+    {
+        if(diagonal.filter(el=>el.innerHTML==char).length == 3)
+        {
+            return diagonal;
+        }
+    }
+    return [];
+}
+
+function clickHandler(e)
+{
+    e.target.innerHTML = "X";
+    if(find("X").length > 0)
+    {
+        find("X").forEach(el=>el.style.color = "green");
+        stop();
+    }
+    else
+    {
+        respond();
+        find("O").forEach(el=>el.style.color = "red");
+        if(find("O").length > 0)
+        {
+            stop();
+        }
+    }
+}
+
+function stop()
+{
+    for(let td of document.querySelectorAll("td"))
+    {
+        td.removeEventListener("click", clickHandler)
+    }
 }
 
 for(let td of document.querySelectorAll("td"))
 {
-    td.addEventListener("click", e=>{
-        e.target.innerHTML = "X";
-        respond();
-    })
+    td.addEventListener("click", clickHandler)
 }
